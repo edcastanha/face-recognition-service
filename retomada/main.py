@@ -2,7 +2,7 @@
 #ROUTE: path_init
 import os 
 import pika 
-from Publisher import Publisher 
+from publicar import Publisher 
 import datetime 
 import json
 

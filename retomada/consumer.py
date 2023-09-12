@@ -1,19 +1,44 @@
-import os
-import datetime
-import re
+## Consumer
+import pika
 
-def get_folders_with_date_format(directory):
-    folder_paths = []
-    for root, directories, files in os.walk(directory):
-        for directory in directories:
-            # Verifica se o nome da pasta corresponde ao formato AAAA-MM-DD
-            if re.match(r"\d{4}-\d{2}-\d{2}$", directory):
-                folder_path = os.path.join(root, directory)
-                folder_paths.append(folder_path)
-    return folder_paths
+RABBITMQ_HOST = "localhost" 
+RABBITMQ_QUEUE = "arquivos" 
+ROUTE_KEY = "path_init"
 
-if __name__ == "__main__":
-    folder_paths = get_folders_with_date_format(PATH_DIR)
-    print("Pastas no formato AAAA-MM-DD:")
-    for folder_path in folder_paths:
-        print(folder_path)
+class Consumer: 
+    def init(self): 
+        self.connection = pika.BlockingConnection( 
+            pika.ConnectionParameters( 
+                host=RABBITMQ_HOST, 
+                port=5672, 
+                credentials=pika.PlainCredentials('secedu', 'ep4X1!br') ) 
+                ) 
+        self.channel = self.connection.channel()
+
+        self.queue_name = RABBITMQ_QUEUE
+        self.channel.queue_declare(queue=self.queue_name, durable=True)
+
+        self.channel.queue_bind(
+            exchange='secedu',
+            queue=self.queue_name,
+            routing_key=ROUTE_KEY
+        )
+
+def start_consumer(self):
+    self.channel.basic_consume(
+        queue=self.queue_name, 
+        on_message_callback=self.callback, 
+        auto_ack=True)
+    
+    print("Esperando por mensagens...")
+    self.channel.start_consuming()
+
+def callback(self, ch, method, properties, body):
+    #print(f"Mensagem recebida: {body.decode()}")
+    data = body.decode()
+    for dado in enumerate(data):
+        print(f"Mensagem recebida: {dado}")
+
+if __name__ == "main": 
+    consumidor = Consumer() 
+    consumidor.start_consuming()
