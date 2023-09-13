@@ -1,77 +1,79 @@
 import pika
 import json
-from retinaface import RetinaFace
-import cv2
+from datetime import datetime as dt
+import re
 import os
 
-dir_face = "B:\SIPPE\Capturas\Faces"
-
-detectores = [
-    "retinaface", 
-    "mtcnn", 
-    "dlib", 
-    "opencv",
-    ]
-class RabbitMQConsumer:
+from publicar import Publisher
+class Consumer:
     def __init__(self):
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost', port=5672, credentials=pika.PlainCredentials('sippe', 'ep4X1!br')))
+        self.connection = pika.BlockingConnection(
+            pika.ConnectionParameters(
+                host='localhost',
+                port=5672,
+                credentials=pika.PlainCredentials('secedu', 'ep4X1!br')
+            )
+        )
+        self.publisher = Publisher()
         self.channel = self.connection.channel()
+        self.channel.queue_bind(
+            exchange='secedu',
+            queue='arquivos',
+            routing_key='path_init'
+        )
     
-    def consume(self):
-        def callback(ch, method, properties, body):
-            # Deserializa a mensagem em um dicionário
-            message_dict = json.loads(body)
-            # Acessa os valores do dicionário
-            snapshot_path = message_dict["snapshot_path"]
-            timestamp = message_dict["timestamp"]   
+    @staticmethod
+    def get_folders_with_date_format(directory):
+        folder_paths = []
+        
+        for root, directories, files in os.walk(directory):
+            for directory in directories:
+                # Verifica se o nome da pasta corresponde ao formato AAAA-MM-DD
+                if re.match(r"\d{4}-\d{2}-\d{2}$", directory):
+                    folder_path = os.path.join(root, directory)
+                    folder_paths.append(folder_path)
 
-            img = cv2.imread(snapshot_path)   
+            return folder_paths
 
-            faces = RetinaFace.detect_faces(snapshot_path, threshold=0.7)
-            if faces is not None:
-                # Pegar as coordenadas para criar novo retângulo e salvar a imagem da face
-                print(faces)
-                for i in range(len(faces)):
-                    identity = faces[f"face_{i+1}"]
-                    facial_area = identity["facial_area"]
-                    landmarks = identity["landmarks"]
-                    
-                    #highlight facial area
-                    cv2.rectangle(img, (facial_area[2], facial_area[3]), (facial_area[0], facial_area[1]), (255, 255, 255), 1)
-                    
-                    #extract facial area
-                    #img = cv2.imread(img_path)
-                    #facial_img = img[facial_area[1]: facial_area[3], facial_area[0]: facial_area[2]]
-                    
-                    #highlight the landmarks
-                    cv2.circle(img, tuple(landmarks["left_eye"]), 1, (0, 0, 255), -1)
-                    cv2.circle(img, tuple(landmarks["right_eye"]), 1, (0, 0, 255), -1)
-                    cv2.circle(img, tuple(landmarks["nose"]), 1, (0, 0, 255), -1)
-                    cv2.circle(img, tuple(landmarks["mouth_left"]), 1, (0, 0, 255), -1)
-                    cv2.circle(img, tuple(landmarks["mouth_right"]), 1, (0, 0, 255), -1)
+    def start_consumer(self):
+        self.channel.basic_consume(
+            queue='arquivos',
+            on_message_callback=self.callback,
+            auto_ack=False
+        )
 
-                    # Salva a imagem cortada no diretório "dir_face"
-                    face_filename = f"Face_{i}_{timestamp}.png"
-                    face_path = os.path.join(dir_face, face_filename)
-                    cv2.imwrite(face_path, img)
-            print("Mensagem recebida:")
-            print(f"Snapshot path: {snapshot_path}")
-            print(f"Timestamp: {timestamp}")
-            print("##############################################")
+        print("Esperando por mensagens...")
+        try:
+            print('Start Consumer')
+            self.channel.start_consuming()
+        finally:
+            print('Close Consumer')
+            self.connection.close()
 
-            # Confirma o recebimento da mensagem
-            #ch.basic_ack(delivery_tag=method.delivery_tag)
+    def callback(self, ch, method, properties, body):
+        data = json.loads(body)
+        for index, field_name in data.items():
+            now = dt.now()
+            proccess = now.strftime("%Y-%m-%d %H:%M:%S")
+            message_dict = {
+                "proccess": proccess,
+            }
+            if index == 'file_path':
+                file_paths = []
+                for root, directories, files in os.walk(field_name):
+                    for file in files:
+                        # Verifica se o arquivo tem uma extensão de imagem válida
+                        if file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                            file_path = os.path.join(root, file)
+                            message_dict.update({'path_image': file_path})
+                            
+                        #print(message_dict)
+                        message_str = json.dumps(message_dict)
+                        self.publisher.start_publisher(self.rabbitmq_queue, message_str, self.route_key)
+            self.publisher.close()
+    
+    
 
-
-        self.channel.basic_consume(queue="detection_face", on_message_callback=callback, auto_ack=False)
-        print("Aguardando mensagens...")
-        self.channel.start_consuming()
-
-    def close(self):
-        self.connection.close()
-
-
-if __name__ == '__main__':
-    consumer = RabbitMQConsumer()
-    consumer.consume()
-    consumer.close()
+if __name__ == "__main__":
+    job = Consumer()
+    job.start_consumer()

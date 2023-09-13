@@ -13,10 +13,10 @@ class Publisher:
         )
         self.channel = self.connection.channel()
 
-    def start_publisher(self, message, timestamp, queue_name):
+    def start_publisher(self, message, routing_name):
        
         self.channel.basic_publish(exchange='secedu', 
-                                   routing_key=queue_name, 
+                                   routing_key=routing_name, 
                                    body=message)
         
         print("Mensagem publicada:", message)

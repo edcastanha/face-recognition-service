@@ -1,59 +1,41 @@
 import pika
 import json
-import redis
 
 class Publisher:
-    def __init__(self, host, port, username, password, redis_host, redis_port):
+    def __init__(self):
+        # RabbitMQ
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
-                host=host,
-                port=port,
-                credentials=pika.PlainCredentials(username, password)
+                host='localhost',
+                port=5672,
+                credentials=pika.PlainCredentials('secedu', 'ep4X1!br')
             )
         )
         self.channel = self.connection.channel()
-        self.queue_name = ''
-        self.redis_client = redis.Redis(host=redis_host, port=redis_port)
 
-    def start_publisher(self, snapshot_path, timestamp, queue_name, capture_date, device):
-        self.queue_name = queue_name
-        message_dict = {
-            "snapshot_path": snapshot_path,
-            "timestamp": timestamp,
-            "capture_date": capture_date,
-            "device": device
-        }
-        message_str = json.dumps(message_dict)
-        self.channel.basic_publish(exchange='', routing_key=self.queue_name, body=message_str)
-        print("Mensagem publicada:", message_str)
-
-        # Log no Redis
-        self.redis_client.hmset("mensagem_processada", {
-            "data_processamento": timestamp,
-            "conteudo": message_str,
-            "origem": self.queue_name,
-            "destinatario": "seu_destinatario",
-            "status_processamento": "pendente"
-        })
+    def start_publisher(self, message, timestamp, queue_name):
+       
+        self.channel.basic_publish(exchange='secedu', 
+                                   routing_key=queue_name, 
+                                   body=message)
+        
+        print("Mensagem publicada:", message)
 
     def close(self):
         self.connection.close()
 
-if __name__ == '__main__':
-    host = 'localhost'
-    port = 5672
-    username = 'sippe'
-    password = 'ep4X1!br'
-    snapshot_path = "/path/to/image.png"
-    timestamp = "2022-01-01 12:00:00"
-    queue_name = 'secedu'
-    capture_date = "2022-01-01"
-    device = "camera01"
-
-    # Configurações do Redis
-    redis_host = 'localhost'
-    redis_port = 6379
-
-    publisher = Publisher(host, port, username, password, redis_host, redis_port)
-    publisher.start_publisher(snapshot_path, timestamp, queue_name, capture_date, device)
-    publisher.close()
+#if __name__ == '__main__':
+#   
+#    message = "/path/to/image.png"
+#    timestamp = "2022-01-01 12:00:00"
+#    queue_name = 'path_init'
+#    capture_date = "2022-01-01"
+#    device = "camera01"
+#
+#    # Configurações do Redis
+#    redis_host = 'localhost'
+#    redis_port = 6379
+#
+#    publisher = Publisher()
+#    publisher.start_publisher(message, timestamp, queue_name)
+#    publisher.close()

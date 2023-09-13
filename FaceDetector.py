@@ -9,11 +9,11 @@ class FaceDetector:
         #DeepFace.build_model('DeepFace')
     def start_detection(self):
         detections = DeepFace.extract_faces(
-        img_path=self.path_image,
-        target_size=(224, 224),
-        detector_backend='retinaface',
-        enforce_detection=False,
-        align=True
+            img_path=self.path_image,
+            target_size=(224, 224),
+            detector_backend='retinaface',
+            enforce_detection=False,
+            align=True
         )
         for i, face_data in enumerate(detections):
             print(f"ID-{i}: {face_data['face']}")
