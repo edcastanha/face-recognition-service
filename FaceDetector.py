@@ -1,4 +1,4 @@
-rom deepface import DeepFace
+from deepface import DeepFace
 from PIL import Image
 
 class FaceDetector:

@@ -1,46 +1,43 @@
-#QUEUE: arquivos
-#ROUTE: path_init
-import os 
-import pika 
-from publicar import Publisher 
-import datetime 
+import os
+import re
 import json
+from datetime import datetime
 
-PATH_DIR = "ftp/sippe3/Sippe3/" 
-RABBITMQ_HOST = "localhost" 
-RABBITMQ_QUEUE = "arquivos" 
-ROUTE_KEY='path_init'
+from publicar import Publisher
 
-publicador = Publisher()
+# Configurar a pasta FTP
+ftp_folder = '../ftp'
 
-def get_file_paths(directory): 
-    file_paths = [] 
-    for root, directories, files in os.walk(directory): 
-        print(f"Files:{root}") 
-        for file in files: 
-            file_path = os.path.join(root, file) 
-            file_paths.append(file_path) 
-            #print(file_paths) return file_paths
+# Expressão regular para o padrão AAAA-MM-DD
+date_pattern = re.compile(r'\d{4}-\d{2}-\d{2}')
 
-if __name__ == "main": 
-    file_paths = get_file_paths(PATH_DIR)
+# Percorrer a pasta FTP
+for root, dirs, files in os.walk(ftp_folder):
+    for dir in dirs:
+        # Verificar se a subpasta corresponde ao padrão AAAA-MM-DD
+        if date_pattern.match(dir):
+            components = root.split('/')
+            device_name = components[2]
+            date_capture = dir
+            file_path = os.path.join(root, dir)
+            timestamp = datetime.now().timestamp()
 
-    for file_path in file_paths:
-        now = datetime.datetime.now()
-        dia_atual = now.strftime("%Y-%m-%d")
-        hora_atual = now.strftime("%H:%M:%S")
-
-        # Cria um dicionário
-        message_dict = {
-            "file_path": file_path,
-            "dia": dia_atual, 
-            "hora": hora_atual,
-            "local_id" : 3
+            message_dict = {
+                "timestamp": timestamp,
+                "file_path": file_path,
+                "date_capture": date_capture,
+                "device_name": device_name
             }
 
-        # Serializa o dicionário em uma string JSON
-        message_str = json.dumps(message_dict)
-
-        publicador.call(message_str, routing_name='path_init')
-
-        publicador.close()
+            message_str = json.dumps(message_dict)
+            # print(f"{date_capture} : {device_name}")
+            # Chamar o Publisher para enviar a mensagem à fila
+            publisher = Publisher()
+            # file_path, date_capture, device_name
+            # Obter o timestamp atual
+            publisher.start_publisher(
+                message=message_str, 
+                timestamp=timestamp, 
+                queue_name='path_init'
+                )
+            publisher.close()

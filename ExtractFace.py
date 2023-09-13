@@ -1,25 +1,21 @@
 import cv2
 import os
-import time
 import datetime
 import Publisher
-import tensorflow as tf
 from deepface import DeepFace
 
 # Configurando uso de GPU e limites de memória
 # https://www.tensorflow.org/guide/gpu
 # https://www.tensorflow.org/guide/gpu#limiting_gpu_memory_growth
-publisher = RabbitMQPublisher()
+publisher = Publisher()
 
-gpus = tf.config.list_physical_devices('GPU')
+dir_img = "../capturas/"
+#video = "B:/SIPPE/Videos/SimPlay20230829135807.dav"
+#rtsp = "rtsp://admin:ep4X1!br@192.168.15.200:554/user=admin_password=ep4X1!br_channel=0_stream=0.sdp?real_stream"
 
-dir_img = "B:\SIPPE\Capturas\Snapshot"
-video = "B:/SIPPE/Videos/SimPlay20230829135807.dav"
-rtsp = "rtsp://admin:ep4X1!br@192.168.15.200:554/user=admin_password=ep4X1!br_channel=0_stream=0.sdp?real_stream"
+class ConsumerExtractFace:
 
-
-class ExtractFace:
-    def __init__(self, intervalo, url , camera_id):
+    def __init__(self,url , camera_id):
         self.intervalo = intervalo
         self.url = url
         self.camera_id = camera_id
@@ -27,8 +23,6 @@ class ExtractFace:
     def run_task(self, ):
         try:
             print("Iniciando captura de frames...")
-            cap = cv2.VideoCapture(self.url)
-
             while cap.isOpened():
                 print("Read...")
                 ret, frame = cap.read()
