@@ -21,7 +21,7 @@ for root, dirs, files in os.walk(ftp_folder):
             date_capture = dir
             timestamp = datetime.now().timestamp()
             file_path = os.path.join(root, dir)
-            print(file_path)
+            #print(file_path)
             message_dict = {
                 "timestamp": timestamp,
                 "file_path": file_path,

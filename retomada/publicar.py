@@ -19,7 +19,7 @@ class Publisher:
                                    routing_key=routing_name, 
                                    body=message)
         
-        print("Mensagem publicada:", message)
+        #print("Mensagem publicada:", message)
 
     def close(self):
         self.connection.close()
