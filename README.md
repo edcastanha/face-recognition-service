@@ -1,3 +1,23 @@
+```
+matchDia = re.search(r'(\d{4}-\d{2}-\d{2})', directory)
+if matchDia:
+    self.dia_captura = matchDia.group(1)
+    # Extrair a hora
+    matchHora = re.search(r'\d{4}-\d{2}-\d{2}/\d{3}/jpg/(\d{2})/(\d{2})\.(\d{2})', 
+    directory)
+if matchHora:
+    self.hora_captura = f"{matchHora.group(1)}:{matchHora.group(2)}:
+    {matchHora.group(3)}"
+
+#{"proccess": "2023-09-13 11:39:56", "path_image": "../ftp/sippe2/83XK2100234LK/2023-08-04/jpg/11/30/15[M][0@0][0].jpg"}
+```
+
+### "../ftp/sippe2/83XK2100234LK/2023-08-04/jpg/11/30/15[M][0@0][0].jpg"
+
+
+## Extract_faces
+
+```
 from lib.deepface import DeepFace
 from PIL import Image
 
@@ -32,3 +52,9 @@ if __name__ == '__main__':
     path_img = 'ftp/sippe3/Sippe3/2023-08-03/001/jpg/08/25.03[M][0@0][0].jpg'
     job = FaceDetector(path_img, 'Device 1')
     job.start_detection()
+```
+
+
+
+
+

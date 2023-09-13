@@ -16,6 +16,7 @@ for root, dirs, files in os.walk(ftp_folder):
     for dir in dirs:
         # Verificar se a subpasta corresponde ao padrão AAAA-MM-DD
         if date_pattern.match(dir):
+            print(f'Inicial...')
             components = root.split('/')
             device_name = components[2]
             date_capture = dir
@@ -28,8 +29,10 @@ for root, dirs, files in os.walk(ftp_folder):
                 "date_capture": date_capture,
                 "device_name": device_name
             }
-           
+
             message_str = json.dumps(message_dict)
+
+            print(f'Message: {message_str}')
 
             publisher = Publisher()
 

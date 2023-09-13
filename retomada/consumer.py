@@ -69,11 +69,10 @@ class Consumer:
         file_paths = []
         for root, directories, files in os.walk(path):
             for file in files:
-                if file.lower().endswith(('.jpg', '.jpeg', '.png', '.gif')):
+                if file.lower().endswith(('.jpg', '.jpeg', '.png')):
                     file_path = os.path.join(root, file)
                     file_paths.append(file_path)
         return file_paths
-
 
 if __name__ == "__main__":
     job = Consumer()

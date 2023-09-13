@@ -3,16 +3,17 @@ import re
 import json
 from datetime import datetime
 
-from publicar import Publisher
+from Publisher import Publisher
 
 # Path padrao 
-ftp_folder = '../ftp'
+ftp_folder = 'ftp'
 
 # Expressão regular para o padrão AAAA-MM-DD
 date_pattern = re.compile(r'\d{4}-\d{2}-\d{2}')
-
 # Percorrer a pasta FTP
 for root, dirs, files in os.walk(ftp_folder):
+    publisher = Publisher()
+
     for dir in dirs:
         # Verificar se a subpasta corresponde ao padrão AAAA-MM-DD
         if date_pattern.match(dir):
@@ -21,7 +22,7 @@ for root, dirs, files in os.walk(ftp_folder):
             date_capture = dir
             timestamp = datetime.now().timestamp()
             file_path = os.path.join(root, dir)
-            print(file_path)
+            #print(file_path)
             message_dict = {
                 "timestamp": timestamp,
                 "file_path": file_path,
@@ -31,12 +32,9 @@ for root, dirs, files in os.walk(ftp_folder):
            
             message_str = json.dumps(message_dict)
 
-            publisher = Publisher()
-
             publisher.start_publisher(
                 message=message_str, 
-                timestamp=timestamp, 
-                queue_name='path_init'
+                routing_name='path_init'
                 )
-            publisher.close()
+    publisher.close()
 
