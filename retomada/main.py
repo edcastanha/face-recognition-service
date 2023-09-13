@@ -5,7 +5,7 @@ from datetime import datetime
 
 from publicar import Publisher
 
-# Configurar a pasta FTP
+# Path padrao 
 ftp_folder = '../ftp'
 
 # Expressão regular para o padrão AAAA-MM-DD
@@ -30,11 +30,9 @@ for root, dirs, files in os.walk(ftp_folder):
             }
 
             message_str = json.dumps(message_dict)
-            # print(f"{date_capture} : {device_name}")
-            # Chamar o Publisher para enviar a mensagem à fila
+
             publisher = Publisher()
-            # file_path, date_capture, device_name
-            # Obter o timestamp atual
+
             publisher.start_publisher(
                 message=message_str, 
                 timestamp=timestamp, 
