@@ -772,31 +772,31 @@ def extract_faces(
     grayscale=False,
 ):
     """
-    This function applies pre-processing stages of a face recognition pipeline
-    including detection and alignment
+    Esta função aplica as fases de pré-processamento de um pipeline de reconhecimento facial
+    incluindo deteção e alinhamento
 
     Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image.
-            Source image can have many face. Then, result will be the size of number
-            of faces appearing in that source image.
+            img_path: caminho exato da imagem, matriz numpy (BGR) ou imagem codificada em base64.
+            A imagem de origem pode ter muitas faces. Então, o resultado será o tamanho do número
+            de faces que aparecem nessa imagem de origem.
 
-            target_size (tuple): final shape of facial image. black pixels will be
-            added to resize the image.
+            target_size (tupla): forma final da imagem facial. Os pixéis pretos serão
+            adicionados para redimensionar a imagem.
 
-            detector_backend (string): face detection backends are retinaface, mtcnn,
-            opencv, ssd or dlib
+            detector_backend (string): os backends de deteção facial são retinaface, mtcnn,
+            opencv, ssd ou dlib
 
-            enforce_detection (boolean): function throws exception if face cannot be
-            detected in the fed image. Set this to False if you do not want to get
-            an exception and run the function anyway.
+            enforce_detection (boolean): a função lança uma exceção se a face não puder ser
+            detectada na imagem alimentada. Defina este valor como False se não pretender obter
+            uma exceção e executar a função na mesma.
 
-            align (boolean): alignment according to the eye positions.
+            align (booleano): alinhamento de acordo com as posições dos olhos.
 
-            grayscale (boolean): extracting faces in rgb or gray scale
+            grayscale (booleano): extração de faces em rgb ou escala de cinzentos
 
     Returns:
-            list of dictionaries. Each dictionary will have facial image itself,
-            extracted area from the original image and confidence score.
+            lista de dicionários. Cada dicionário terá a própria imagem facial,
+            a área extraída da imagem original e a pontuação de confiança.
 
     """
 
