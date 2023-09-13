@@ -65,7 +65,10 @@ class Consumer:
                     message_dict.update({'path_image': file_path})
                     message_str = json.dumps(message_dict)
                     print(message_str)
-                    self.publisher.start_publisher(message_str, 'nova-face')
+                    self.publisher.start_publisher(
+                        message=message_str, 
+                        routing_name='nova-face'
+                        )
 
         self.publisher.close()
 

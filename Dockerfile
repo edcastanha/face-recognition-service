@@ -2,14 +2,6 @@
 FROM python:3.8
 # -----------------------------------
 # switch to application directory
-WORKDIR /app
-# -----------------------------------
-# create required folder
-#RUN mkdir /app
-# -----------------------------------
-# Copy required files from repo into image
-
-COPY ./ /app/
 
 RUN ["curl","https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o Miniconda3-latest-Linux-x86_64.sh"]
 
@@ -36,6 +28,8 @@ RUN curl -o Miniconda3-latest-Linux-x86_64.sh https://repo.anaconda.com/minicond
 
 RUN sh Miniconda3-latest-Linux-x86_64.sh
 
+RUN rm ~/Miniconda3-latest-Linux-x86_64.sh
+
 RUN conda create --name tf python=3.8.18 -y
 
 RUN conda deactivate
@@ -55,9 +49,14 @@ RUN wget https://storage.googleapis.com/tensorflow/linux/gpu/tensorflow-2.13.0-c
 
 RUN pip install tensorflow-2.13.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl -y
 
+RUN rm ~/tensorflow-2.13.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 # -----------------------------------
 # environment variables
 ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+COPY ./ /app/
 
 # -----------------------------------
 # run the app (re-configure port if necessary)

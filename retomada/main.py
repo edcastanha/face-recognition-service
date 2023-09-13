@@ -35,8 +35,7 @@ for root, dirs, files in os.walk(ftp_folder):
 
             publisher.start_publisher(
                 message=message_str, 
-                timestamp=timestamp, 
-                queue_name='path_init'
+                routing_name='path_init'
                 )
             publisher.close()
 
