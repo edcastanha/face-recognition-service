@@ -4,7 +4,7 @@ import datetime
 import json
 import re
 from publicar import Publisher
-from deep
+
 
 class Detection():
     def __init__(self):
@@ -17,18 +17,17 @@ class Detection():
             now = datetime.datetime.now()
             proccess = now.strftime("%Y-%m-%d %H:%M:%S")
             message_dict = {
-                "file_path": file_path,
                 "proccess": proccess,
-                "local_id" : 'sippe3',
-                "dia": self.dia_captura,
-                "hora": self.hora_captura
             }
+        
+        
         message_str = json.dumps(message_dict)
         self.publisher.start_publisher(self.rabbitmq_queue, message_str, self.route_key)
         self.publisher.close()
 
     def get_folders_with_date_format(self, directory):
         folder_paths = []
+        
         for root, directories, files in os.walk(directory):
             for directory in directories:
                 # Verifica se o nome da pasta corresponde ao formato AAAA-MM-DD
@@ -50,7 +49,5 @@ class Detection():
 
 
 if __name__ == "__main__":
-    PATH_DIR = "ftp/sippe3/Sippe3/"
-    RABBITMQ_QUEUE = "arquivos"
-    ROUTE_KEY = 'path_init'
     job = Detection()
+    job.start_task()
