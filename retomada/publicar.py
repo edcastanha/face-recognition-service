@@ -1,8 +1,6 @@
 import pika
 import json
-import logging
-
-logging.info('Started Consumer')
+from loggingMe import logger
 
 class Publisher:
     def __init__(self):
@@ -14,18 +12,16 @@ class Publisher:
             )
         )
         self.channel = self.connection.channel()
+        logger.info('<**_**> Inicializado Main: encaminha pastas de devices')
 
-    def start_publisher(self, message, routing_name):
-        logging.info(f'ROUTER_KEY: {routing_name}')
-        self.channel.basic_publish(exchange='secedu', 
+    def start_publisher(self, exchange, routing_name, message):
+        self.channel.basic_publish(exchange=exchange, 
                                    routing_key=routing_name, 
                                    body=message)
-        
-        #print("Mensagem publicada:", message)
+        logger.info(f' <**_**> PUBLISHER : encaminha pastas de devices -ROUTER_KEY: {routing_name}')
 
     def close(self):
-        logging.info(f'close: <#:#> Publicar')
-
+        logger.info(f' <**_**> CLOSE: Main')
         self.connection.close()
 
 #if __name__ == '__main__':
