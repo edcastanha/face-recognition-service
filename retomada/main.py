@@ -4,9 +4,6 @@ import json
 from datetime import datetime
 import logging
 
-logging.basicConfig(filename='main.log', level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
-logging.info('Started Main')
-
 from publicar import Publisher
 
 # Path padrao 

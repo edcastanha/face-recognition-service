@@ -3,8 +3,13 @@ import json
 from datetime import datetime as dt
 from deepface import DeepFace
 import os
-
+import matplotlib.pyplot as plt
 from publicar import Publisher
+import logging
+import numpy as np
+
+DIR_CAPS ='../capturas/'
+backend_detector='retinaface'
 
 class ConsumerExtrair:
     def __init__(self):
@@ -21,6 +26,7 @@ class ConsumerExtrair:
             exchange='secedu',
             routing_key='extrair-face'
         )
+        logging.info('Started Class...')
 
     def run(self):
         # CONFIGURACAO CONSUMER
@@ -38,55 +44,50 @@ class ConsumerExtrair:
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
-        model_names = [
-            "VGG-Face",
-            "Facenet",
-            "Facenet512",
-            "OpenFace",
-            "DeepFace",
-            "DeepID",
-            "Dlib",
-            "ArcFace",
-            "SFace",
-        ]
-        detector_backends = ["opencv", "ssd", "dlib", "mtcnn", "retinaface"]
+        file = data['caminho_do_arquivo']
+        print(file)
 
-        now = dt.now()
-        proccess = now.strftime("%Y-%m-%d %H:%M:%S")
-        message_dict = {
-            'data_processo': proccess,
-            'data_captura': data['data_captura'],
-            'nome_equipamento': data['nome_equipamento']
-        }
-        for index, field_name in data.items():
+        if file.lower().endswith(('.jpg', '.jpeg', '.png')):
+            now = dt.now()
+            equipamento =data['nome_equipamento']
+            data_captura=data['data_captura']
+            proccess = now.strftime("%Y-%m-%d %H:%M:%S")
+            message_dict = {
+                'data_processo': proccess,
+                'data_captura': data_captura,
+                'nome_equipamento': equipamento,
+                'captura_base': file,
+            }
+            face_objs = DeepFace.extract_faces(img_path=file, detector_backend=backend_detector, enforce_detection=False)
+            for index, face_obj in enumerate(face_objs):
+                if face_obj['confidence'] >= 0.97:
+                    face = face_obj['face']
+                    # Verifique se pelo menos um rosto atende ao critério de confiança
+                    new_face = os.path.join(DIR_CAPS, equipamento, data_captura)
+                    if not os.path.exists(new_face):
+                        os.makedirs(new_face, exist_ok=True)
+                    # Converta a imagem de float32 para uint8 (formato de imagem)
+                    face_uint8 = (face * 255).astype('uint8')
                     
-            if index == 'caminho_do_arquivo':
-                file_paths = self.find_image_files(field_name)
-                publisher = Publisher()
-                for file_path in file_paths:
-                    # extract faces
-                    for detector_backend in detector_backends:
-                        face_objs = DeepFace.extract_faces(
-                            img_path="dataset/img1.jpg", detector_backend=detector_backend
-                        )
-                        for face_obj in face_objs:
-                            face = face_obj["face"]
-                            print(detector_backend)
-                            # represent
-                            for model_name in model_names:
-                                embedding_objs = DeepFace.represent(img_path=face, model_name=model_name)
-                                for embedding_obj in embedding_objs:
-                                    embedding = embedding_obj["embedding"]
-                                    print(f"{model_name} produced {len(embedding)}D vector")
+                    # Gere um nome de arquivo único para a face
+                    save_path = os.path.join(new_face, f"face_{index}.jpg")
 
-    def find_image_files(self, path):
-        file_paths = []
-        for root, directories, files in os.walk(path):
-            for file in files:
-                if file.lower().endswith(('[0].jpg', '[0].jpeg', '[0].png')):
-                    file_path = os.path.join(root, file)
-                    file_paths.append(file_path)
-        return file_paths
+                    try:
+                        # Salve a face no diretório "captura/" usando Matplotlib
+                        plt.imsave(save_path, face_uint8)
+                        
+                        publisher = Publisher()
+                        message_dict.update({'caminho_do_face': save_path})
+                        message_dict.update({'detector_backend': backend_detector})
+
+                        message_str = json.dumps(message_dict)
+                        #publisher.start_publisher(message=message_str, routing_name='embedding')
+                        publisher.close()
+                        
+                        print("Face saved:", save_path)
+                    except Exception as e:
+                        print("Erro ao salvar a imagem:", str(e))
+
 if __name__ == "__main__":
     job = ConsumerExtrair()
     job.run()

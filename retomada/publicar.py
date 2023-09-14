@@ -2,7 +2,7 @@ import pika
 import json
 import logging
 
-logging.info('Started Publicar')
+logging.info('Started Consumer')
 
 class Publisher:
     def __init__(self):

@@ -1,8 +1,9 @@
 import logging
 
 # create logger
-logger = logging.getLogger('simple_example')
+logger = logging.getLogger('SecEdu')
 logger.setLevel(logging.DEBUG)
+
 
 # create console handler and set level to debug
 ch = logging.StreamHandler()
