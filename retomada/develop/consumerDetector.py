@@ -3,10 +3,13 @@ import json
 from datetime import datetime as dt
 import re
 import os
+import logging
 
 from publicar import Publisher
 
-class Consumer:
+class ConsumerExtratorFace:
+    logging.info(f'CLASS: <#:#> ConsumerExtratorFace')
+
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
@@ -18,27 +21,15 @@ class Consumer:
         self.channel = self.connection.channel()
         self.channel.queue_bind(
             exchange='secedu',
-            queue='arquivos',
-            routing_key='path_init'
+            queue='extrair',
+            routing_key='extrair-face'
         )
-    
-    @staticmethod
-    def find_folders_with_date_format(directory):
-        folder_paths = []
-        
-        for root, directories, files in os.walk(directory):
-            for directory in directories:
-                if re.match(r"\d{4}-\d{2}-\d{2}$", directory):
-                    folder_path = os.path.join(root, directory)
-                    folder_paths.append(folder_path)
-
-        return folder_paths
 
     def run(self):
         self.channel.basic_consume(
-            queue='arquivos',
+            queue='extrair',
             on_message_callback=self.process_message,
-            auto_ack=True
+            #auto_ack=True
         )
 
         print("Esperando por mensagens...")

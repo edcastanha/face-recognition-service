@@ -2,6 +2,10 @@ import os
 import re
 import json
 from datetime import datetime
+import logging
+
+logging.basicConfig(filename='main.log', level=logging.INFO, format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.info('Started Main')
 
 from publicar import Publisher
 
@@ -34,6 +38,8 @@ for root, dirs, files in os.walk(ftp_folder):
 
             print(f'Message: {message_str}')
             try:
+                logging.info('Publisher Main')
+
                 publisher = Publisher()
 
                 publisher.start_publisher(
@@ -42,6 +48,7 @@ for root, dirs, files in os.walk(ftp_folder):
                     )
                 publisher.close()
             except pika.exceptions.AMQPConnectionError as e:
+                logging.info(f'Exceptions Main: {e}')
                 print(f"Erro ao estabelecer conexão com o RabbitMQ: {e}")
             
     

@@ -2,3 +2,7 @@ ftp
 capturas
 *.whl
 __pycache__
+*__pycache__
+.*.pyc
+*pyc
+*.cpython-*

@@ -1,5 +1,9 @@
 import pika
 import json
+import logging
+
+logging.basicConfig(filename='publicar.log', level=logging.INFO)
+logging.info('Started Publicar')
 
 class Publisher:
     def __init__(self):
@@ -14,6 +18,7 @@ class Publisher:
         self.channel = self.connection.channel()
 
     def start_publisher(self, message, routing_name):
+        logging.info('Started: start_publisher')
        
         self.channel.basic_publish(exchange='secedu', 
                                    routing_key=routing_name, 
@@ -22,6 +27,7 @@ class Publisher:
         #print("Mensagem publicada:", message)
 
     def close(self):
+        logging.info('Started: close')
         self.connection.close()
 
 #if __name__ == '__main__':

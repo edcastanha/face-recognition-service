@@ -29,7 +29,6 @@ class Consumer:
             on_message_callback=self.process_message,
             auto_ack=True
         )
-
         print("Esperando por mensagens...")
         try:
             self.channel.start_consuming()
