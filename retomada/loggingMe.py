@@ -1,7 +1,7 @@
 import logging
 
 # create logger
-logger = logging.getLogger('SecEdu')
+logger = logging.getLogger('** SecEdu ::')
 logger.setLevel(logging.DEBUG)
 
 
