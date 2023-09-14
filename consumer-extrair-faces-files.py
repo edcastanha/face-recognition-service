@@ -14,11 +14,12 @@ QUEUE_PUBLISHIR='faces'
 ROUTE_KEY='extractor'
 
 QUEUE_CONSUMER='files'
+ASK_DEBUG = True
 
-DIR_CAPS ='../capturas/'
+
+DIR_CAPS ='capturas'
 
 BACKEND_DETECTOR='retinaface'
-ASK_DEBUG = False
 LIMITE_DETECTOR =0.99
 
 class ConsumerExtractor:

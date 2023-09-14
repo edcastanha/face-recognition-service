@@ -1,5 +1,6 @@
 import logging
 
+logging.basicConfig(filename='LoggingMe.log')
 # create logger
 logger = logging.getLogger('** SecEdu ::')
 logger.setLevel(logging.DEBUG)

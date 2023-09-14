@@ -5,22 +5,21 @@ from deepface import DeepFace
 import os
 import matplotlib.pyplot as plt
 from publicar import Publisher
-from loggingMe import logger
 import re
-
+from loggingMe import logger
 EXCHANGE='secedu'
 
-QUEUE_PUBLISHIR='files'
-ROUTE_KEY='snapshot'
+QUEUE_PUBLISHIR='embedding'
+ROUTE_KEY='verification'
 
-QUEUE_CONSUMER='ftp'
+QUEUE_CONSUMER='faces'
+ASK_DEBUG = True
 
-DIR_CAPS ='../capturas/'
-backend_detector='retinaface'
-ask_debug = False
-limiteDetector =0.99
+DIR_CAPS ='capturas'
+BACKEND_DETECTOR='retinaface'
+LIMITE_DETECTOR =0.99
 
-class ConsumerExtrair:
+class ConsumerEmbbeding:
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
@@ -31,30 +30,33 @@ class ConsumerExtrair:
         )
         self.channel = self.connection.channel()
         self.channel.queue_bind(
-            queue='verificar',
-            exchange='secedu',
-            routing_key='salvar'
+            queue=QUEUE_PUBLISHIR,
+            exchange=EXCHANGE,
+            routing_key=ROUTE_KEY
         )
-        logger.info('Started Class...')
+        logger.info(f' <**_**> ConsumerEmbbeding: Init')
 
     def run(self):
         # CONFIGURACAO CONSUMER
-        self.channel.basic_consume(
-            queue='verificar',
+        self.channel.basic_consume(           
+            queue=QUEUE_CONSUMER,
             on_message_callback=self.process_message,
-            auto_ack=ask_debug
+            auto_ack=ASK_DEBUG
         )
 
         print("Esperando por mensagens...")
+        logger.info(f' <**_**> ConsumerEmbbeding: Aguardando {QUEUE_CONSUMER}')
         try:
             self.channel.start_consuming()
+            logger.info(f' <**_**> ConsumerEmbbeding: start_consumer')
         finally:
             self.connection.close()
+            logger.info(f' <**_**> ConsumerEmbbeding: close')
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
         file = data['caminho_do_arquivo']
-        print(file)
+        logger.info(f' <**_**> ConsumerEmbbeding: process_message')
 
         if file.lower().endswith(('.jpg', '.jpeg', '.png')):
             now = dt.now()
@@ -62,12 +64,12 @@ class ConsumerExtrair:
             data_captura=data['data_captura']
             proccess = now.strftime("%Y-%m-%d %H:%M:%S")
             message_dict = {
-                'data_processo': proccess,
-                'data_captura': data_captura,
                 'nome_equipamento': equipamento,
+                'data_captura': data_captura,
                 'captura_base': file,
+                'data_processo': proccess,
             }
-            face_objs = DeepFace.extract_faces(img_path=file, detector_backend=backend_detector, enforce_detection=False)
+            face_objs = DeepFace.extract_faces(img_path=file, detector_backend=BACKEND_DETECTOR, enforce_detection=False)
             # Extrair a parte da URL que contém HH, MM e SS
             matchM = re.search(r'/(\d{2})/(\d{2})/(\d{2})', file)
             if matchM:
@@ -79,7 +81,7 @@ class ConsumerExtrair:
                 hh, mm, ss = matchP.groups()
 
             for index, face_obj in enumerate(face_objs):
-                if face_obj['confidence'] >= limiteDetector:
+                if face_obj['confidence'] >= LIMITE_DETECTOR:
                     face = face_obj['face']
 
                     new_face = os.path.join(DIR_CAPS, equipamento, data_captura, hh,mm,ss)
@@ -99,15 +101,15 @@ class ConsumerExtrair:
 
                         publisher = Publisher()
                         message_dict.update({'caminho_do_face': save_path})
-                        message_dict.update({'detector_backend': backend_detector})
+                        message_dict.update({'detector_backend': BACKEND_DETECTOR})
 
                         message_str = json.dumps(message_dict)
-                        publisher.start_publisher(message=message_str, routing_name='embedding')
+                        publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                         publisher.close()
                         logger.info('Face salva')
                     except Exception as e:
                         logger.error("Erro ao salvar a imagem:", str(e))
 
 if __name__ == "__main__":
-    job = ConsumerExtrair()
+    job = ConsumerEmbbeding()
     job.run()

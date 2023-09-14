@@ -1,12 +1,24 @@
+# consumer-rota-cameras-data.py 
+# ConsumerPath 
+# Extrai PATH de FTP e encaminha Files SNAPSHOT
 import pika
 import json
 from datetime import datetime as dt
 import re
 import os
+from loggingMe import logger
+
+EXCHANGE='secedu'
+
+QUEUE_PUBLISHIR='files'
+ROUTE_KEY='snapshot'
+
+QUEUE_CONSUMER='ftp'
+ASK_DEBUG = True
 
 from publicar import Publisher
 
-class Consumer:
+class ConsumerPath:
     def __init__(self):
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
@@ -17,26 +29,29 @@ class Consumer:
         )
         self.channel = self.connection.channel()
         self.channel.queue_bind(
-            queue='arquivos',
-            exchange='secedu',
-            routing_key='path_init'
+            queue=QUEUE_PUBLISHIR,
+            exchange=EXCHANGE,
+            routing_key=ROUTE_KEY
         )
-
+        logger.info(f' <**_**> ConsumerPath: init')
+    
     def run(self):
-        # CONFIGURACAO CONSUMER
         self.channel.basic_consume(
-            queue='arquivos',
+            queue=QUEUE_CONSUMER,
             on_message_callback=self.process_message,
             auto_ack=True
         )
-
         print("Esperando por mensagens...")
+        logger.info(f' <**_**> ConsumerPath: aguardando fila ...')
         try:
             self.channel.start_consuming()
+            logger.info(f' <**_**> ConsumerPath: start_consuming')
         finally:
             self.connection.close()
+            logger.info(f' <**_**> ConsumerPath: close')
 
     def process_message(self, ch, method, properties, body):
+        logger.info(f' <**_**> ConsumerPath: proccess_message')
         data = json.loads(body)
         now = dt.now()
         proccess = now.strftime("%Y-%m-%d %H:%M:%S")
@@ -47,17 +62,16 @@ class Consumer:
         }
 
         for index, field_name in data.items():
-            
+            logger.info(f' <**_**> ConsumerPath: Corre messagem')
             if index == 'caminho_do_arquivo':
                 file_paths = self.find_image_files(field_name)
                 publisher = Publisher()
                 for file_path in file_paths:
                     message_dict.update({'caminho_do_arquivo': file_path})
-                    
                     message_str = json.dumps(message_dict)
                     publisher.start_publisher(message=message_str, routing_name='extrair-face')
+                    logger.info(f' <**_**> ConsumerPath: {file_path}')
                 publisher.close()
-
 
     def find_image_files(self, path):
         file_paths = []
@@ -66,8 +80,9 @@ class Consumer:
                 if file.lower().endswith(('[0].jpg', '[0].jpeg', '[0].png')):
                     file_path = os.path.join(root, file)
                     file_paths.append(file_path)
+        logger.info(f' <**_**> ConsumerPath: find_image_files')
         return file_paths
 
 if __name__ == "__main__":
-    job = Consumer()
+    job = ConsumerPath()
     job.run()

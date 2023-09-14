@@ -1,13 +1,9 @@
 import pika
 import json
-import logging
-
-logging.basicConfig(filename='publicar.log', level=logging.INFO)
-logging.info('Started Publicar')
+from loggingMe import logger
 
 class Publisher:
     def __init__(self):
-        # RabbitMQ
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host='localhost',
@@ -16,18 +12,16 @@ class Publisher:
             )
         )
         self.channel = self.connection.channel()
+        logger.info('<**_**> Inicializado Main: encaminha pastas de devices')
 
-    def start_publisher(self, message, routing_name):
-        logging.info('Started: start_publisher')
-       
-        self.channel.basic_publish(exchange='secedu', 
+    def start_publisher(self, exchange, routing_name, message):
+        self.channel.basic_publish(exchange=exchange, 
                                    routing_key=routing_name, 
                                    body=message)
-        
-        #print("Mensagem publicada:", message)
+        logger.info(f' <**_**> PUBLISHER : encaminha pastas de devices -ROUTER_KEY: {routing_name}')
 
     def close(self):
-        logging.info('Started: close')
+        logger.info(f' <**_**> CLOSE: Main')
         self.connection.close()
 
 #if __name__ == '__main__':
