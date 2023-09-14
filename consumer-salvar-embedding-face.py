@@ -55,52 +55,31 @@ class ConsumerEmbbeding:
 
     def process_message(self, ch, method, properties, body):
         data = json.loads(body)
-        file = data['caminho_do_arquivo']
+        file = data['caminho_do_face']
         logger.info(f' <**_**> ConsumerEmbbeding: process_message')
 
         if file.lower().endswith(('.jpg', '.jpeg', '.png')):
             now = dt.now()
             equipamento =data['nome_equipamento']
             data_captura=data['data_captura']
+            face=data['caminho_do_face']
             proccess = now.strftime("%Y-%m-%d %H:%M:%S")
             message_dict = {
                 'nome_equipamento': equipamento,
                 'data_captura': data_captura,
-                'captura_base': file,
+                'caminho_do_face': face,
                 'data_processo': proccess,
+
             }
-            face_objs = DeepFace.extract_faces(img_path=file, detector_backend=BACKEND_DETECTOR, enforce_detection=False)
-            # Extrair a parte da URL que contém HH, MM e SS
-            matchM = re.search(r'/(\d{2})/(\d{2})/(\d{2})', file)
-            if matchM:
-                hh, mm, ss = matchM.groups()
-
-            #Extrair a parte da URL que contém HH, MM e SS
-            matchP = re.search(r'/(\d{2})/(\d{2})\.(\d{2})', file)
-            if matchP:
-                hh, mm, ss = matchP.groups()
-
+            embedding_objs = DeepFace.represent(img_path=face, model_name=model_name)
+   
             for index, face_obj in enumerate(face_objs):
                 if face_obj['confidence'] >= LIMITE_DETECTOR:
                     face = face_obj['face']
 
-                    new_face = os.path.join(DIR_CAPS, equipamento, data_captura, hh,mm,ss)
-                    if not os.path.exists(new_face):
-                        os.makedirs(new_face, exist_ok=True)
-
-                    # Converta a imagem de float32 para uint8 (formato de imagem)
-                    face_uint8 = (face * 255).astype('uint8')
-                    
-                    # Gere um nome de arquivo único para a face
-                    save_path = os.path.join(new_face, f"face_{index}.jpg")
-                    print(save_path)
-
                     try:
-                        # Salve a face no diretório "captura/" usando Matplotlib
-                        plt.imsave(save_path, face_uint8, format='png', dpi=150)
-
+         
                         publisher = Publisher()
-                        message_dict.update({'caminho_do_face': save_path})
                         message_dict.update({'detector_backend': BACKEND_DETECTOR})
 
                         message_str = json.dumps(message_dict)

@@ -69,7 +69,7 @@ class ConsumerPath:
                 for file_path in file_paths:
                     message_dict.update({'caminho_do_arquivo': file_path})
                     message_str = json.dumps(message_dict)
-                    publisher.start_publisher(message=message_str, routing_name='extrair-face')
+                    publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                     logger.info(f' <**_**> ConsumerPath: {file_path}')
                 publisher.close()
 

@@ -105,7 +105,7 @@ class ConsumerExtractor:
                         message_dict.update({'caminho_do_face': save_path})
                         message_dict.update({'detector_backend': BACKEND_DETECTOR})
                         message_str = json.dumps(message_dict)
-                        publisher.start_publisher(message=message_str, routing_name='embedding')
+                        publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                         publisher.close()
                         logger.info(f' <**_**> ConsumerExtractor: Save Image')
                     except Exception as e:
