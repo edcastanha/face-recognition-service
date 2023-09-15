@@ -25,8 +25,6 @@ RUN pip install -e ./lib/
 
 RUN pip install -r requirements.txt
 
-RUN RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
 RUN rm -rf /tmp/*
 
 
