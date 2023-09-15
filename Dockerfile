@@ -5,14 +5,19 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
-COPY ./lib/ /app/lib/
-
-COPY ./publicar.py /app/
-COPY ./consumer-extrair-faces-files.py /app/
-
 RUN mkdir /app/capturas/
 
 RUN mkdir /app/ftp/
+
+RUN apt-get update
+
+RUN apt-get install ffmpeg libsm6 libxext6 -y
+
+COPY ./lib/ /app/lib/
+
+COPY ./publicar.py /app/
+
+COPY ./consumer-extrair-faces-files.py /app/
 
 COPY ./requirements.txt /app/
 
@@ -20,4 +25,9 @@ RUN pip install -e ./lib/
 
 RUN pip install -r requirements.txt
 
-CMD ["python", "consumer-extrair-faces-files.py" ]
+RUN RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN rm -rf /tmp/*
+
+
+#CMD ["python", "consumer-extrair-faces-files.py" ]

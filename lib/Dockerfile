@@ -25,9 +25,6 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 # -----------------------------------
 # if you will use gpu, then you should install tensorflow-gpu package
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow-gpu
-RUN pip install tensorflow-2.13.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-
-RUN rm tensorflow-2.13.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 # -----------------------------------
 # install deepface from pypi release (might be out-of-the-date)
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
