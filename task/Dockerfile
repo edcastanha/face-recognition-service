@@ -3,9 +3,9 @@ FROM nvcr.io/nvidia/tensorflow:23.08-tf2-py3
 # environment variables
 ENV PYTHONUNBUFFERED=1
 
-EXPOSE 6000
-
 WORKDIR /app
+
+EXPOSE 8888
 
 RUN mkdir /app/capturas/
 RUN mkdir /app/dataset/

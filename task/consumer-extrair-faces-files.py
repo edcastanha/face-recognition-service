@@ -1,23 +1,20 @@
 import pika
 import json
 from datetime import datetime as dt
-from lib.deepface import DeepFace
 import os
 import matplotlib.pyplot as plt
-from publicar import Publisher
 import re
+
+from lib.deepface import DeepFace
+from publicar import Publisher
 from loggingMe import logger
 
-import redis
-
+RMQ_SERVER = 'localhost'
 EXCHANGE='secedu'
-
 QUEUE_PUBLISHIR='faces'
 ROUTE_KEY='extractor'
-
 QUEUE_CONSUMER='files'
 ASK_DEBUG = True
-
 
 DIR_CAPS ='../volumes/capturas'
 
@@ -26,40 +23,13 @@ BACKEND_DETECTOR='Facenet'
 MODEL_BACKEND ='mtcnn'
 LIMITE_DETECTOR = 0.99
 
-RMQ_SERVER = 'localhost'
-REDIS_SERVER = 'localhost'
-
 from os import environ
-from redis.commands.search import reducers
-from redis.commands.search.query import NumericFilter, Query
-import redis.commands.search.aggregation as aggregations
 
-redis_server = environ.get('REDIS_SERVER', "localhost")
-logger.info(f' <**_**> redis server definido como ' + redis_server)
-
-redis_port = int(environ.get('REDIS_PORT', "6379"))
-
-server_port = int(environ.get('SERVER_PORT', "8087"))
-
-redis_index = environ.get('REDIS_INDEX', "idx:movies")
-
-redis_password = environ.get('REDIS_PASSWORD', "")
-
-# conn = redis.StrictRedis(redis_server, redis_port)
-if redis_password is not None:
-    print("REDIS CONNECTION não é None PASSWORD")
-    conn = redis.Redis(redis_server, redis_port, password=redis_password, charset="utf-8", decode_responses=True)
-else:
-    print("SENHA DE LIGAÇÃO AO REDIS")
-    conn = redis.Redis(redis_server, redis_port, charset="utf-8", decode_responses=True)
-
-r = redis.Redis.from_url(os.getenv("REDIS_URL", "redis://localhost:6379"), decode_responses = True)
-
-#r.delete()
-# secedu-rmq-task
+logger.info(f' <**_**> RMQ_SERVER::{RMQ_SERVER} #################')
 
 class ConsumerExtractor:
     def __init__(self):
+        logger.info(f' <**_**> ConsumerExtractor ####################################')
         self.connection = pika.BlockingConnection(
             pika.ConnectionParameters(
                 host=RMQ_SERVER,
@@ -73,7 +43,7 @@ class ConsumerExtractor:
             exchange=EXCHANGE,
             routing_key=ROUTE_KEY
         )
-        logger.info(f' <**_**> ConsumerExtractor: Init')
+        logger.info(f' <**_**> ConsumerExtractor: {self.connection}')
 
     def run(self):
         self.channel.basic_consume(

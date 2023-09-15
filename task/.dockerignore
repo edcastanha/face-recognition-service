@@ -11,9 +11,9 @@ venv/
 *.log
 *.db
 *.log
-./capturas
-./ftp
-./dataset
+capturas/
+ftp/
+dataset/
 
 # Diretórios específicos para outras ferramentas
 node_modules/
