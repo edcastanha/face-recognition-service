@@ -14,6 +14,7 @@ COPY ./api/service.py /app/
 COPY ./requirements.txt /app/
 COPY ./setup.py /app/
 COPY ./README.md /app/
+COPY ./tensorflow-2.13.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl /app/
 # -----------------------------------
 # switch to application directory
 WORKDIR /app
@@ -24,6 +25,9 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 # -----------------------------------
 # if you will use gpu, then you should install tensorflow-gpu package
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org tensorflow-gpu
+RUN pip install tensorflow-2.13.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+
+RUN rm tensorflow-2.13.0-cp38-cp38-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
 # -----------------------------------
 # install deepface from pypi release (might be out-of-the-date)
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org deepface
@@ -31,6 +35,7 @@ RUN apt-get install ffmpeg libsm6 libxext6 -y
 # install deepface from source code (always up-to-date)
 RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org -e .
 # -----------------------------------
+
 # some packages are optional in deepface. activate if your task depends on one.
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org cmake==3.24.1.1
 # RUN pip install --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org dlib==19.20.0

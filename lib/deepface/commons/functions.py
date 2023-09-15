@@ -242,8 +242,8 @@ def normalize_input(img, normalization="base"):
 
     Args:
         img (numpy array): the input image.
-        normalization (str, optional): the normalization technique. Defaults to "base",
-        for no normalization.
+        normalization (str, optional): the normalization technique.
+        Defaults to "base", for no normalization.
 
     Returns:
         numpy array: the normalized image.
@@ -254,9 +254,9 @@ def normalize_input(img, normalization="base"):
     if normalization == "base":
         return img
 
-    # @trevorgribble and @davedgd contributed this feature
-    # restore input in scale of [0, 255] because it was normalized in scale of
-    # [0, 1] in preprocess_face
+    # @trevorgribble and @davedgd contribuiu com esta funcionalidade
+    # Restaurar a entrada na escala de [0, 255] porque foi normalizada na escala de
+    # [0, 1] em preprocess_face
     img *= 255
 
     if normalization == "raw":
@@ -272,7 +272,7 @@ def normalize_input(img, normalization="base"):
         img -= 1
 
     elif normalization == "VGGFace":
-        # mean subtraction based on VGGFace1 training data
+        # subtração média baseada nos dados de treino VGGFace1
         img[..., 0] -= 93.5940
         img[..., 1] -= 104.7624
         img[..., 2] -= 129.1863
@@ -284,13 +284,13 @@ def normalize_input(img, normalization="base"):
         img[..., 2] -= 131.0912
 
     elif normalization == "ArcFace":
-        # Reference study: The faces are cropped and resized to 112×112,
-        # and each pixel (ranged between [0, 255]) in RGB images is normalised
-        # by subtracting 127.5 then divided by 128.
+        # Estudo de referência: Os rostos são cortados e redimensionados para 112×112,
+        # e cada pixel (variando entre [0, 255]) nas imagens RGB é normalizado
+        # subtraindo 127,5 e dividindo por 128.
         img -= 127.5
         img /= 128
     else:
-        raise ValueError(f"unimplemented normalization type - {normalization}")
+        raise ValueError(f"tipo de normalização não implementado - {normalization}")
 
     return img
 

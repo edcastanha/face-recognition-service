@@ -2,11 +2,11 @@ import pika
 import json
 from datetime import datetime as dt
 from deepface import DeepFace
-import os
 import matplotlib.pyplot as plt
 from publicar import Publisher
-import re
 from loggingMe import logger
+import redis
+
 EXCHANGE='secedu'
 
 QUEUE_PUBLISHIR='embedding'
@@ -16,8 +16,11 @@ QUEUE_CONSUMER='faces'
 ASK_DEBUG = True
 
 DIR_CAPS ='capturas'
-BACKEND_DETECTOR='retinaface'
+BACKEND_DETECTOR='Facenet512'
 LIMITE_DETECTOR =0.99
+
+METRICS = ["cosine", "euclidean", "euclidean_l2"]
+
 
 class ConsumerEmbbeding:
     def __init__(self):
@@ -44,7 +47,6 @@ class ConsumerEmbbeding:
             auto_ack=ASK_DEBUG
         )
 
-        print("Esperando por mensagens...")
         logger.info(f' <**_**> ConsumerEmbbeding: Aguardando {QUEUE_CONSUMER}')
         try:
             self.channel.start_consuming()
@@ -71,23 +73,22 @@ class ConsumerEmbbeding:
                 'data_processo': proccess,
 
             }
-            embedding_objs = DeepFace.represent(img_path=face, model_name=model_name)
-   
-            for index, face_obj in enumerate(face_objs):
-                if face_obj['confidence'] >= LIMITE_DETECTOR:
-                    face = face_obj['face']
 
-                    try:
-         
-                        publisher = Publisher()
-                        message_dict.update({'detector_backend': BACKEND_DETECTOR})
+            try:
+                embedding = DeepFace.represent(img_path=face,
+                                               detector_backend=BACKEND_DETECTOR, 
+                                               enforce_detection=False
+                                               )[0]["embedding"]
+                message_dict.update({'embedding': embedding})
 
-                        message_str = json.dumps(message_dict)
-                        publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
-                        publisher.close()
-                        logger.info('Face salva')
-                    except Exception as e:
-                        logger.error("Erro ao salvar a imagem:", str(e))
+                publisher = Publisher()
+                message_dict.update({'detector_backend': BACKEND_DETECTOR})
+                message_str = json.dumps(message_dict)
+                publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
+                publisher.close()
+                logger.info(f' <**_**>  ConsumerEmbbeding: Embedding ')
+            except Exception as e:
+                logger.error(f' <**_**> ConsumerEmbbeding: Salve e Publisher ')
 
 if __name__ == "__main__":
     job = ConsumerEmbbeding()

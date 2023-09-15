@@ -20,7 +20,7 @@ ASK_DEBUG = True
 DIR_CAPS ='capturas'
 
 BACKEND_DETECTOR='retinaface'
-LIMITE_DETECTOR =0.99
+LIMITE_DETECTOR = 0.99
 
 class ConsumerExtractor:
     def __init__(self):
@@ -46,7 +46,6 @@ class ConsumerExtractor:
             auto_ack=ASK_DEBUG
         )
 
-        print("Esperando por mensagens...")
         logger.info(f' <**_**> ConsumerExtractor: Aguardando {QUEUE_CONSUMER}')
         try:
             self.channel.start_consuming()
@@ -71,7 +70,11 @@ class ConsumerExtractor:
                 'nome_equipamento': equipamento,
                 'captura_base': file,
             }
-            face_objs = DeepFace.extract_faces(img_path=file, detector_backend=BACKEND_DETECTOR, enforce_detection=False)
+            face_objs = DeepFace.extract_faces(img_path=file,
+                                               detector_backend=BACKEND_DETECTOR, 
+                                               enforce_detection=False,  
+                                               align=True
+                                               )
             # Extrair a parte da URL que contém HH, MM e SS
             matchM = re.search(r'/(\d{2})/(\d{2})/(\d{2})', file)
             if matchM:

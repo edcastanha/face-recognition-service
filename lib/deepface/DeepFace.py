@@ -42,14 +42,14 @@ if tf_version == 2:
 
 def build_model(model_name):
     """
-    This function builds a deepface model
-    Parameters:
-            model_name (string): face recognition or facial attribute model
-                    VGG-Face, Facenet, OpenFace, DeepFace, DeepID for face recognition
-                    Age, Gender, Emotion, Race for facial attributes
+    Esta função cria um modelo de superfície profunda
+    Parâmetros:
+            model_name (string): modelo de reconhecimento facial ou de atributos faciais
+                    VGG-Face, Facenet, OpenFace, DeepFace, DeepID para reconhecimento facial
+                    Idade, Género, Emoção, Raça para atributos faciais
 
-    Returns:
-            built deepface model
+    Retorna:
+            modelo deepface construído
     """
 
     # singleton design pattern
@@ -96,42 +96,42 @@ def verify(
     normalization="base",
 ):
     """
-    This function verifies an image pair is same person or different persons. In the background,
-    verification function represents facial images as vectors and then calculates the similarity
-    between those vectors. Vectors of same person images should have more similarity (or less
-    distance) than vectors of different persons.
+    Esta função verifica se um par de imagens é a mesma pessoa ou pessoas diferentes. Em segundo plano,
+    função de verificação representa as imagens faciais como vectores e depois calcula a semelhança
+    entre esses vectores. Os vectores das imagens da mesma pessoa devem ter mais semelhança (ou menos
+    distância) do que os vectores de pessoas diferentes.
 
-    Parameters:
-            img1_path, img2_path: exact image path as string. numpy array (BGR) or based64 encoded
-            images are also welcome. If one of pair has more than one face, then we will compare the
-            face pair with max similarity.
+    Parâmetros:
+            img1_path, img2_path: caminho exato da imagem como string. array numpy (BGR) ou imagens codificadas em based64
+            também são bem-vindas. Se um dos pares tiver mais do que uma face, então comparamos o par de faces
+            par de faces com similaridade máxima.
 
-            model_name (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib
-            , ArcFace and SFace
+            nome_do_modelo (str): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib
+            ArcFace e SFace
 
             distance_metric (string): cosine, euclidean, euclidean_l2
 
-            enforce_detection (boolean): If no face could not be detected in an image, then this
-            function will return exception by default. Set this to False not to have this exception.
-            This might be convenient for low resolution images.
+            enforce_detection (booleano): Se não for possível detetar nenhuma face numa imagem, então esta
+            função devolverá uma exceção por defeito. Defina este valor como False para não ter esta exceção.
+            Isto pode ser conveniente para imagens de baixa resolução.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+            detector_backend (string): define o backend do detetor de faces para opencv, retinaface, mtcnn, ssd,
+            dlib, mediapipe ou yolov8.
 
-            align (boolean): alignment according to the eye positions.
+            align (boolean): alinhamento de acordo com as posições dos olhos.
 
-            normalization (string): normalize the input image before feeding to model
+            normalization (string): normaliza a imagem de entrada antes de alimentar o modelo
 
-    Returns:
-            Verify function returns a dictionary.
+    Retorna:
+            A função Verify devolve um dicionário.
 
             {
-                    "verified": True
-                    , "distance": 0.2563
+                    "verified" (verificado): True
+                    , "distância": 0.2563
                     , "max_threshold_to_verify": 0.40
-                    , "model": "VGG-Face"
+                    , "modelo": "VGG-Face"
                     , "similarity_metric": "cosine"
-                    , 'facial_areas': {
+                    , "facial_areas": {
                             'img1': {'x': 345, 'y': 211, 'w': 769, 'h': 769},
                             'img2': {'x': 318, 'y': 534, 'w': 779, 'h': 779}
                     }
@@ -234,62 +234,63 @@ def analyze(
     silent=False,
 ):
     """
-    This function analyzes facial attributes including age, gender, emotion and race.
-    In the background, analysis function builds convolutional neural network models to
-    classify age, gender, emotion and race of the input image.
+    Esta função analisa os atributos faciais, incluindo a idade, o sexo, a emoção e a raça.
+    Em segundo plano, a função de análise constrói modelos de rede neural convolucional para
+    classificar a idade, o género, a emoção e a raça da imagem de entrada.
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or base64 encoded image could be passed.
-            If source image has more than one face, then result will be size of number of faces
-            appearing in the image.
+    Parâmetros:
+            img_path: pode ser passado o caminho exato da imagem, uma matriz numpy (BGR) ou uma imagem codificada em base64.
+            Se a imagem de origem tiver mais de um rosto, o resultado será o tamanho do número de rostos
+            que aparecem na imagem.
 
-            actions (tuple): The default is ('age', 'gender', 'emotion', 'race'). You can drop
-            some of those attributes.
+            acções (tupla): A predefinição é ('idade', 'género', 'emoção', 'raça'). Pode eliminar
+            alguns desses atributos.
 
-            enforce_detection (bool): The function throws exception if no face detected by default.
-            Set this to False if you don't want to get exception. This might be convenient for low
-            resolution images.
+            enforce_detection (bool): A função lança uma exceção se nenhum rosto for detectado por defeito.
+            Defina isto para False se não quiser receber uma exceção. Isto pode ser conveniente para imagens de baixa
+            baixa resolução.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+            detector_backend (string): define o backend do detetor de faces para opencv, retinaface, mtcnn, ssd,
+            dlib, mediapipe ou yolov8.
 
-            align (boolean): alignment according to the eye positions.
+            align (booleano): alinhamento de acordo com as posições dos olhos.
 
-            silent (boolean): disable (some) log messages
+            silent (boolean): desativar (algumas) mensagens de registo
 
-    Returns:
-            The function returns a list of dictionaries for each face appearing in the image.
+    Retorna:
+            A função retorna uma lista de dicionários para cada rosto que aparece na imagem.
 
             [
                     {
                             "region": {'x': 230, 'y': 120, 'w': 36, 'h': 45},
-                            "age": 28.66,
-                            "dominant_gender": "Woman",
-                            "gender": {
-                                    'Woman': 99.99407529830933,
-                                    'Man': 0.005928758764639497,
+                            "idade": 28.66,
+                            "género_dominante": "Mulher",
+                            "género": {
+                                    'Mulher': 99.99407529830933,
+                                    'Homem': 0.005928758764639497,
                             }
-                            "dominant_emotion": "neutral",
-                            "emotion": {
-                                    'sad': 37.65260875225067,
-                                    'angry': 0.15512987738475204,
+                            "dominant_emotion" (emoção dominante): "neutral",
+                            "emotion" (emoção): {
+                                    'triste': 37.65260875225067,
+                                    'zangado': 0.15512987738475204,
                                     'surprise': 0.0022171278033056296,
-                                    'fear': 1.2489334680140018,
-                                    'happy': 4.609785228967667,
+                                    'medo': 1.2489334680140018,
+                                    'feliz': 4.609785228967667,
                                     'disgust': 9.698561953541684e-07,
                                     'neutral': 56.33133053779602
                             }
-                            "dominant_race": "white",
+                            "dominant_race": "branco",
                             "race": {
-                                    'indian': 0.5480832420289516,
+                                    'indiano': 0.5480832420289516,
                                     'asian': 0.7830780930817127,
-                                    'latino hispanic': 2.0677512511610985,
+                                    'latino hispânico': 2.0677512511610985,
                                     'black': 0.06337375962175429,
                                     'middle eastern': 3.088453598320484,
-                                    'white': 93.44925880432129
+                                    'white' (branco): 93.44925880432129
                             }
                     }
             ]
+
     """
     # ---------------------------------
     # validate actions
@@ -408,38 +409,38 @@ def find(
     silent=False,
 ):
     """
-    This function applies verification several times and find the identities in a database
+    Esta função aplica a verificação várias vezes e encontra as identidades numa base de dados
 
-    Parameters:
-            img_path: exact image path, numpy array (BGR) or based64 encoded image.
-            Source image can have many faces. Then, result will be the size of number of
-            faces in the source image.
+    Parâmetros:
+            img_path: caminho exato da imagem, matriz numpy (BGR) ou imagem codificada com base64.
+            A imagem de origem pode ter muitas faces. Então, o resultado será o tamanho do número de
+            faces na imagem de origem.
 
-            db_path (string): You should store some image files in a folder and pass the
-            exact folder path to this. A database image can also have many faces.
-            Then, all detected faces in db side will be considered in the decision.
+            db_path (string): Você deve armazenar alguns arquivos de imagem numa pasta e passar o
+            caminho exato para esta pasta. Uma imagem da base de dados também pode ter muitas faces.
+            Então, todas as faces detectadas na base de dados serão consideradas na decisão.
 
-            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID,
-            Dlib, ArcFace, SFace or Ensemble
+            nome_do_modelo (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID,
+            Dlib, ArcFace, SFace ou Ensemble
 
-            distance_metric (string): cosine, euclidean, euclidean_l2
+            distance_metric (string): cosseno, euclideano, euclidean_l2
 
-            enforce_detection (bool): The function throws exception if a face could not be detected.
-            Set this to False if you don't want to get exception. This might be convenient for low
-            resolution images.
+            enforce_detection (bool): A função lança uma exceção se não for possível detetar uma face.
+            Defina isto como False se não quiser obter uma exceção. Isto pode ser conveniente para imagens de baixa
+            baixa resolução.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+            detector_backend (string): define o backend do detetor de faces para opencv, retinaface, mtcnn, ssd,
+            dlib, mediapipe ou yolov8.
 
-            align (boolean): alignment according to the eye positions.
+            align (boolean): alinhamento de acordo com as posições dos olhos.
 
-            normalization (string): normalize the input image before feeding to model
+            normalization (string): normaliza a imagem de entrada antes de alimentar o modelo
 
-            silent (boolean): disable some logging and progress bars
+            silent (boolean): desativar alguns registos e barras de progresso
 
-    Returns:
-            This function returns list of pandas data frame. Each item of the list corresponding to
-            an identity in the img_path.
+    Retorna:
+            Esta função devolve uma lista de quadros de dados pandas. Cada item da lista corresponde a
+            uma identidade no caminho_img.
     """
 
     tic = time.time()
@@ -625,32 +626,32 @@ def represent(
     normalization="base",
 ):
     """
-    This function represents facial images as vectors. The function uses convolutional neural
-    networks models to generate vector embeddings.
+    Esta função representa imagens faciais como vectores. A função utiliza modelos de redes neurais convolucionais
+    neurais convolucionais para gerar a incorporação de vectores.
 
-    Parameters:
-            img_path (string): exact image path. Alternatively, numpy array (BGR) or based64
-            encoded images could be passed. Source image can have many faces. Then, result will
-            be the size of number of faces appearing in the source image.
+    Parâmetros:
+            img_path (string): caminho exato da imagem. Em alternativa, pode ser passada uma matriz numpy (BGR) ou imagens codificadas em based64
+            podem ser passadas imagens codificadas. A imagem de origem pode ter muitas faces. Então, o resultado será
+            será o tamanho do número de faces que aparecem na imagem de origem.
 
-            model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
+            nome_do_modelo (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
             ArcFace, SFace
 
-            enforce_detection (boolean): If no face could not be detected in an image, then this
-            function will return exception by default. Set this to False not to have this exception.
-            This might be convenient for low resolution images.
+            enforce_detection (booleano): Se não for possível detetar nenhuma face numa imagem, esta
+            função devolverá uma exceção por defeito. Defina este valor como False para não ter esta exceção.
+            Isto pode ser conveniente para imagens de baixa resolução.
 
-            detector_backend (string): set face detector backend to opencv, retinaface, mtcnn, ssd,
-            dlib, mediapipe or yolov8.
+            detector_backend (string): define o backend do detetor de faces para opencv, retinaface, mtcnn, ssd,
+            dlib, mediapipe ou yolov8.
 
-            align (boolean): alignment according to the eye positions.
+            align (boolean): alinhamento de acordo com as posições dos olhos.
 
-            normalization (string): normalize the input image before feeding to model
+            normalization (string): normaliza a imagem de entrada antes de alimentar o modelo
 
-    Returns:
-            Represent function returns a list of object with multidimensional vector (embedding).
-            The number of dimensions is changing based on the reference model.
-            E.g. FaceNet returns 128 dimensional vector; VGG-Face returns 2622 dimensional vector.
+    Retorna:
+            A função de representação devolve uma lista de objectos com um vetor multidimensional (embedding).
+            O número de dimensões está a mudar com base no modelo de referência.
+            Por exemplo, FaceNet devolve um vetor de 128 dimensões; VGG-Face devolve um vetor de 2622 dimensões.
     """
     resp_objs = []
 
@@ -718,25 +719,25 @@ def stream(
     frame_threshold=5,
 ):
     """
-    This function applies real time face recognition and facial attribute analysis
+    Esta função aplica o reconhecimento facial em tempo real e a análise dos atributos faciais
 
-    Parameters:
-            db_path (string): facial database path. You should store some .jpg files in this folder.
+    Parâmetros:
+            db_path (string): caminho da base de dados facial. Deve guardar alguns ficheiros .jpg nesta pasta.
 
             model_name (string): VGG-Face, Facenet, Facenet512, OpenFace, DeepFace, DeepID, Dlib,
             ArcFace, SFace
 
-            detector_backend (string): opencv, retinaface, mtcnn, ssd, dlib, mediapipe or yolov8.
+            detector_backend (string): opencv, retinaface, mtcnn, ssd, dlib, mediapipe ou yolov8.
 
             distance_metric (string): cosine, euclidean, euclidean_l2
 
-            enable_facial_analysis (boolean): Set this to False to just run face recognition
+            enable_facial_analysis (boolean): Defina como False para executar apenas o reconhecimento facial
 
-            source: Set this to 0 for access web cam. Otherwise, pass exact video path.
+            source (fonte): Defina este valor como 0 para aceder à câmara Web. Caso contrário, passe o caminho exato do vídeo.
 
-            time_threshold (int): how many second analyzed image will be displayed
+            time_threshold (int): quantos segundos a imagem analisada será apresentada
 
-            frame_threshold (int): how many frames required to focus on face
+            frame_threshold (int): quantos frames são necessários para focar a face
 
     """
 

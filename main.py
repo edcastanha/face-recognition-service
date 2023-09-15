@@ -7,7 +7,7 @@ from loggingMe import logger
 
 from publicar import Publisher
 
-logger.info(f' <**_**> Main - Processando pasta do FTP')
+logger.info(f' <**_**> Main - Iniciando FTP')
 
 QUEUE_PUBLISHIR='ftp'
 #QUEUE_CONSUMER='arquivos'
@@ -22,9 +22,8 @@ date_pattern = re.compile(r'\d{4}-\d{2}-\d{2}')
 
 # Percorrer a pasta FTP
 for root, dirs, files in os.walk(FTP_PATH):
-    logger.info(f' <**_**> Iniciado listagem de PATH DEVICE')
+    logger.info(f' <**_**> MAIN Listagem de PATH DEVICE')
     for dir in dirs:
-        logger.info(f' <**_**> PATH : 1 : {dir}')
         # Verificar se a subpasta corresponde ao padrão AAAA-MM-DD
         if date_pattern.match(dir):
             try:
@@ -33,25 +32,23 @@ for root, dirs, files in os.walk(FTP_PATH):
                 date_capture = dir
                 timestamp = datetime.now().isoformat()
                 file_path = os.path.join(root, dir)
-                logger.info(f' <**_**> PATH : 2 : {file_path}')
                 message_dict = {
                     "data_captura": date_capture,
                     "nome_equipamento": device_name,
                     "caminho_do_arquivo": file_path,
                     "data_processomento": timestamp,
                 }
+                logger.info(f' <**_**> MAIN : path = {file_path}')
 
                 message_str = json.dumps(message_dict)
 
-                print(f'{message_str}')
                 logger.info(f' <**_**> ')
                 publisher = Publisher()
-                logger.info(f' <**_**> PUBLISHER: {EXCHANGE} - {QUEUE_PUBLISHIR}')
+                logger.info(f' <**_**> MAIN: {EXCHANGE} - {QUEUE_PUBLISHIR}')
                 publisher.start_publisher(exchange=EXCHANGE, routing_name=ROUTE_KEY, message=message_str)
                 publisher.close()
             except pika.exceptions.AMQPConnectionError as e:
-                logger.error(f' <**_**> PUBLISHER: {e}')
-                print(f"ERROR: {e}")
+                logger.error(f' <**_**> MAIN: {e}')
             
     
 
