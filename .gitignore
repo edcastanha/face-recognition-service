@@ -1,7 +1,8 @@
-ftp
-capturas
+**ftp/
+**capturas/
+**volumes/
 *.whl
-__pycache__
+**__pycache__
 *__pycache__
 .*.pyc
 *pyc
