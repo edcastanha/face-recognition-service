@@ -4,18 +4,22 @@ version: '3.7'
 
 services:
   secedu-task:
-    image: extrator-face:0.0.5
+    build:
+      context: .
+      dockerfile: Dockerfile
     command: python consumer-extrair-faces-files.py
-    deploy:
-      mode: replicas # Escolha o número de réplicas conforme necessário
-      replicas: 2
+  #  deploy:
+  #    mode: replicas # Escolha o número de réplicas conforme necessário
+  #    replicas: 2
     depends_on:
       - secedu-rds-tack
       - secedu-rmq-task
     restart: always
     volumes:
+      - ./task:/app
       - ./volumes/capturas/:/app/capturas
       - ./volumes/ftp/:/app/ftp
+      - ./volumes/dataset/:/app/dataset
     networks:
       - secedu_rmq_network
       - secedu_rds_network
@@ -45,7 +49,7 @@ services:
         - ./volumes/redis:/data
     ports:
         - "6379:6379" 
-        - "8001:8001" 
+        - "8005:8001" 
     networks:
         - secedu_rds_network
 
