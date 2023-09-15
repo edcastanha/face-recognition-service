@@ -1,11 +1,16 @@
 import pika
 import json
 from datetime import datetime as dt
-from deepface import DeepFace
+from lib.deepface import DeepFace
+
+import redis
+from redis.commands.search.field import VectorField, TagField
+from redis.commands.search.query import Query
+
 import matplotlib.pyplot as plt
+
 from publicar import Publisher
 from loggingMe import logger
-import redis
 
 EXCHANGE='secedu'
 
@@ -15,11 +20,14 @@ ROUTE_KEY='verification'
 QUEUE_CONSUMER='faces'
 ASK_DEBUG = True
 
-DIR_CAPS ='capturas'
-BACKEND_DETECTOR='Facenet512'
+DIR_CAPS ='../volumes/capturas'
+BACKEND_DETECTOR='Facenet'
+MODEL_BACKEND ='mtcnn'
 LIMITE_DETECTOR =0.99
 
 METRICS = ["cosine", "euclidean", "euclidean_l2"]
+
+redis = redis.StrictRedis(host='localhost', port=6379, db=0)
 
 
 class ConsumerEmbbeding:
@@ -75,9 +83,11 @@ class ConsumerEmbbeding:
             }
 
             try:
+   
                 embedding = DeepFace.represent(img_path=face,
                                                detector_backend=BACKEND_DETECTOR, 
-                                               enforce_detection=False
+                                               enforce_detection=False,
+                                               detector_backend=MODEL_BACKEND
                                                )[0]["embedding"]
                 message_dict.update({'embedding': embedding})
 

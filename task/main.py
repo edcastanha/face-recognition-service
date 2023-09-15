@@ -15,7 +15,7 @@ EXCHANGE='secedu'
 ROUTE_KEY='path'
 #ASK_DEBUG = False
 
-FTP_PATH = 'ftp'
+FTP_PATH = '../volumes/ftp'
 
 # Expressão regular para o padrão AAAA-MM-DD
 date_pattern = re.compile(r'\d{4}-\d{2}-\d{2}')

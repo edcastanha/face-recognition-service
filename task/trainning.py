@@ -1,5 +1,5 @@
 import os
-from deepface import DeepFace
+from lib.deepface import DeepFace
 from tqdm import tqdm
 import redis
 
@@ -13,7 +13,7 @@ class Trainning:
         self.img_path = img_path
         self.models = [
             "VGG-Face",       #0
-            "Facenet",        #1
+            "Facenet",        #1 ****
             "Facenet512",     #2
             "OpenFace",       #3
             "DeepFace",       #4
@@ -24,7 +24,7 @@ class Trainning:
         ]
         self.detector = [
             "opencv",       #0
-            "mtcnn",        #1
+            "mtcnn",        #1 *****
             "dlib",         #2
             "ssd",          #3
             "retinaface",   #4
